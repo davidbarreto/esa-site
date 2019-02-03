@@ -35,7 +35,7 @@ class DBConnection {
             $this->username = $config['username'];
             $this->password = $config['password'];
 
-            $this->conn = new PDO("mysql:host=$this->servername;dbname=$this->dbname", $this->username, $this->password);
+            $this->conn = new PDO("mysql:host=$this->servername;dbname=$this->dbname;charset=utf8", $this->username, $this->password);
         }
     }
     

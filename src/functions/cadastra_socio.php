@@ -7,21 +7,25 @@
  */
 
     require_once(__DIR__.'/../dao/SocioDAO.php');
+    require_once(__DIR__.'/../dao/UsuarioDAO.php');
     require_once(__DIR__.'/../model/Socio.php');
     require_once(__DIR__.'/../model/Cidade.php');
 
+    session_start();
+
     //Obtem campos
-    $nome_completo = $_POST["nomecompleto"];
-    $data_nascimento = $_POST["datanascimento"];
-    $logradouro = $_POST["logradouro"];
-    $numero_residencia = $_POST["numero_residencia"];
-    $complemento= $_POST["complemento"];
-    $bairro = $_POST["bairro"];
-    $id_estado = $_POST["uf"];
-    $id_cidade = $_POST["cidade"];
-    $cep = $_POST["cep"];
+    $nome = $_POST["name"];
+    $sobrenome = $_POST["lastname"];
     $email = $_POST["email"];
-    $telefone = $_POST["telefone"];
+    $data_nascimento = $_POST["birthday"];
+    $logradouro = $_POST["address"];
+    $numero_residencia = $_POST["number"];
+    $complemento= $_POST["address2"];
+    $bairro = $_POST["neighborhood"];
+    $id_estado = $_POST["state"];
+    $id_cidade = $_POST["city"];
+    $cep = $_POST["cep"];
+    $telefone = $_POST["telephone"];
 
     //Valida Campos
     //TODO Validar campos
@@ -29,10 +33,10 @@
     //Preenche objeto de Modelo
     $socio = new Socio();
 
-    $socio->setNomeCompleto($nome_completo);
     $socio->setDataNascimento($data_nascimento);
     $socio->setLogradouro($logradouro);
     $socio->setNumResidencia($numero_residencia);
+    $socio->setTelefone($telefone);
     $socio->setComplementoEndereco($complemento);
     $socio->setBairro($bairro);
 
@@ -41,10 +45,26 @@
     $socio->setCidade($cidade);
 
     $socio->setCep($cep);
-    $socio->setEmail($email);
 
     //TODO setWhasapp
 
-    SocioDAO::getInstance()->insertSocio($socio);
+    $resultSocio = SocioDAO::getInstance()->insertSocio($socio);
+
+    if ($resultSocio->isSucess()) {
+
+        $id_socio = $resultSocio->getData();
+        $id_usuario = $_SESSION["id_usuario"];
+
+        $_SESSION["id_socio"] = $id_socio;
+
+        $resultUsuario = UsuarioDAO::getInstance()->updateSocioId($id_usuario, $id_socio);
+
+        if ($resultSocio->isSucess()) {
+            echo "OK";
+        } else {
+            echo "NOK";
+        }
+
+    }
 
 

@@ -26,7 +26,7 @@ class CidadeDAO
           SELECT c.id as id_cidade, c.nome as nome_cidade,
             e.id as id_estado, e.uf, e.nome as nome_estado,
             p.id as id_pais, p.nome as nome_pais, p.sigla as sigla_pais
-          FROM esa.cidade c, esa.estado e, esa.pais p WHERE e.pais = p.id AND c.estado = e.id
+          FROM esa.cidade c, esa.estado e, esa.pais p WHERE e.pais = p.id AND c.estado = e.id 
 SQL;
 
     }
@@ -69,7 +69,7 @@ SQL;
 
     public function getListaCidadesPorEstado(Estado $filter) {
 
-        $rs = $this->prepareQueryParameters($filter);
+        $rs = $this->prepareEstadoQueryParameters($filter);
 
         $cidades = array();
         while ($row = $rs->fetch(PDO::FETCH_OBJ)) {
@@ -81,12 +81,12 @@ SQL;
 
     public function getListaCidadesPorEstadoRaw(Estado $filter) {
 
-        $rs = $this->prepareQueryParameters($filter);
+        $rs = $this->prepareEstadoQueryParameters($filter);
 
         return $rs->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    private function prepareQueryParameters(Estado $filter) {
+    private function prepareEstadoQueryParameters(Estado $filter) {
 
         $query = $this->baseQuery;
         $params = array();
@@ -99,6 +99,11 @@ SQL;
         if (null !== $filter->getNome()) {
             $query .= "AND e.nome LIKE ? ";
             $params[] = "%".$filter->getNome()."%";
+        }
+
+        if (null !== $filter->getUf()) {
+            $query .= "AND e.uf = ? ";
+            $params[] = $filter->getUf();
         }
 
         $rs = $this->conn->prepare($query);

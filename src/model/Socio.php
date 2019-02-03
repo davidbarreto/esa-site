@@ -3,16 +3,15 @@
 class Socio {
     
     private $id;
-    private $nomeCompleto;
     private $logradouro;
     private $numResidencia;
+    private $telefone;
     private $bairro;
     private $cidade;
     private $cep;
     private $dataNascimento;
     private $complementoEndereco;
     private $genero;
-    private $email;
     private $dataInclusao;
     private $dataAlteracao;
     private $dataExclusao;
@@ -31,22 +30,6 @@ class Socio {
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getNomeCompleto()
-    {
-        return $this->nomeCompleto;
-    }
-
-    /**
-     * @param mixed $nomeCompleto
-     */
-    public function setNomeCompleto($nomeCompleto)
-    {
-        $this->nomeCompleto = $nomeCompleto;
     }
 
     /**
@@ -79,6 +62,22 @@ class Socio {
     public function setNumResidencia($numResidencia)
     {
         $this->numResidencia = $numResidencia;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTelefone()
+    {
+        return $this->telefone;
+    }
+
+    /**
+     * @param mixed $telefone
+     */
+    public function setTelefone($telefone)
+    {
+        $this->telefone = $telefone;
     }
 
     /**
@@ -175,22 +174,6 @@ class Socio {
     public function setGenero($genero)
     {
         $this->genero = $genero;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param mixed $email
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
     }
 
     /**
