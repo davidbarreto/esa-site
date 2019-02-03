@@ -89,3 +89,19 @@ function fillSession(Usuario $user) {
     $_SESSION['email'] = $user->getEmail();
     $_SESSION['perfil'] = $user->getPerfil()->getId();
 }
+
+/**
+ * Convert each array elements or single strings to UTF-8
+ * @param $d
+ * @return array|string
+ */
+function utf8ize($d) {
+    if (is_array($d)) {
+        foreach ($d as $k => $v) {
+            $d[$k] = utf8ize($v);
+        }
+    } else if (is_string ($d)) {
+        return utf8_encode($d);
+    }
+    return $d;
+}
