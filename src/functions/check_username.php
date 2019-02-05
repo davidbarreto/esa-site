@@ -6,13 +6,13 @@
  * Time: 15:23
  */
 
-    require_once(__DIR__.'/../dao/UsuarioDAO.php');
+    require_once(__DIR__.'/../utils/validation-functions.php');
 
     $username = isset($_GET['username']) ? $_GET['username'] : '';
 
     if (!empty($username)) {
 
-        $result = UsuarioDAO::getInstance()->existsUsuario($username);
+        $result = isUsernameAlreadyUsed($username);
 
         if ($result) {
             echo "false";

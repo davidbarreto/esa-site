@@ -117,4 +117,31 @@ SQL;
 
         return $rs;
     }
+
+    public function existsCityInState($cityId, $stateId) {
+        return $this->existsCity($cityId, $stateId);
+    }
+
+    public function existsCity($cityId, $stateId = null) {
+        $sql =
+<<<SQL
+        SELECT 1 FROM esa.cidade WHERE id = ? 
+SQL;
+
+        if (null !== $stateId) {
+            $sql .= "AND estado = ? ";
+        }
+        $rs = $this->conn->prepare($sql);
+
+        $rs->bindParam(1, $cityId);
+        if (null !== $stateId) {
+            $rs->bindParam(2, $stateId);
+        }
+
+        $rs->execute();
+
+        $row = $rs->fetch(PDO::FETCH_OBJ);
+
+        return !empty($row);
+    }
 }

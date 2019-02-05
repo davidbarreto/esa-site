@@ -8,7 +8,7 @@
 
 require_once('DBConncetion.php');
 require_once(__DIR__.'/../model/ModelUtils.php');
-require_once(__DIR__.'/../response/Response.php');
+require_once(__DIR__.'/../utils/Response.php');
 
 class UsuarioDAO
 {
@@ -27,7 +27,7 @@ class UsuarioDAO
         return self::$instance;
     }
 
-    public function getUsuarioByUsernameOrEmail($username) {
+    public function getUserByUsernameOrEmail($username) {
         $user = new Usuario();
 
         if (strpos($username, '@') !== false) {
@@ -36,12 +36,12 @@ class UsuarioDAO
             $user->setLogin($username);
         }
 
-        $resp = $this->getUsuario($user, 1);
+        $resp = $this->getUser($user, 1);
 
         return (null !== $resp and !empty($resp)) ? $resp[0] : null;
     }
 
-    public function getUsuario(Usuario $usuario, $limit = 0) {
+    public function getUser(Usuario $usuario, $limit = 0) {
 
         $query = <<<SQL
           SELECT u.id as id_usuario, u.login, u.senha, u.nome, u.sobrenome, u.email,
@@ -222,7 +222,7 @@ SQL;
         return $usuarios;
     }
 
-    public function insertUsuario(Usuario $usuario) {
+    public function insertUser(Usuario $usuario) {
         $sql = <<<SQL
           INSERT INTO esa.usuario
             (login, senha, nome, sobrenome, email, perfil_id) 
@@ -246,7 +246,7 @@ SQL;
         return new Response(true, Response::SUCCESS, "Success", $this->conn->lastInsertId());
     }
 
-    public function updateSocioId($id_usuario, $id_socio) {
+    public function updatePartnerId($id_usuario, $id_socio) {
 
         $sql = <<<SQL
           UPDATE esa.usuario SET socio_id = ? WHERE id = ?
@@ -264,7 +264,7 @@ SQL;
         return new Response(true, Response::SUCCESS, "Success", $rs->rowCount());
     }
 
-    public function existsUsuario($username) {
+    public function existsUser($username) {
         $sql = <<<SQL
           SELECT 1
           FROM esa.usuario u

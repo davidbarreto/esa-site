@@ -1,12 +1,23 @@
 <?php
     require_once(__DIR__.'/../dao/EstadoDAO.php');
+    require_once(__DIR__.'/../utils/functions.php');
+    require_once(__DIR__.'/../utils/response-functions.php');
+
     session_start();
 
-    function printVar($index) {
-        if (isset($_SESSION[$index])) {
-            echo $_SESSION[$index];
+    $result = getGeneralSuccessResponse();
+
+    if (!isset($_SESSION["id_socio"])) {
+
+        if (isset($_POST['cadastroForm'])) {
+
+            $result = subscribe();
         }
+
+    } else {
+        $result = getAlreadyLoggedErrorResponse();
     }
+
 ?>
 
 <!DOCTYPE html>
@@ -115,28 +126,6 @@
             });
         });
 
-        //Function to verify User field in server, by calling a GET Method
-        function verifyField(type, value) {
-
-            let response = false;
-
-            $.ajax({
-                url: '../functions/valida_usuario.php',
-                type: 'get',
-                data: {
-                    type: type,
-                    value: value
-                },
-                dataType: 'html',
-                async: false,
-                success: function(data) {
-                    response = (data != 0) ? true : false;
-                }
-            });
-
-            return response;
-        }
-
         //Reset Cities
         function Reset(){
             $('#city').empty().append('<option>Selecione Estado para Carregar a lista</option>');
@@ -149,7 +138,12 @@
     <div class="container-login100" style="background-image: url('../static/images/bg-01.jpg');">
 
         <div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
-            <form id="signupForm" class="login100-form validate-form" method="post" action="../functions/cadastra_socio.php">
+
+            <div class="alert alert-danger " style="<?php echo (!$result->isSuccess()) ? "display:block" : "display:none" ?>" role="alert">
+                <?php echo $result->getBusinessMessage() ?>
+            </div>
+
+            <form id="signupForm" class="login100-form validate-form" method="post" action="cadastro.php">
 					<span class="login100-form-title p-b-59">
 						ESA - Criar Conta: Complete seu Cadastro para ser Sócia!
 					</span>
@@ -157,21 +151,21 @@
                 <div class="wrap-input100">
                     <span class="label-input100">Nome</span>
                     <input class="input100" type="text" name="name" placeholder="Ex: Maria"
-                           value="<?php printVar('nome'); ?>" readonly>
+                           value="<?php printSessionFieldIfExists('nome'); ?>" readonly>
                     <span class="focus-input100" data-symbol="&#xf207;"></span>
                 </div>
 
                 <div class="wrap-input100">
                     <span class="label-input100">Sobrenome</span>
                     <input class="input100" type="text" name="lastname" placeholder="Ex: Santos"
-                           value="<?php printVar('sobrenome'); ?>" readonly>
+                           value="<?php printSessionFieldIfExists('sobrenome'); ?>" readonly>
                     <span class="focus-input100" data-symbol="&#xf207;"></span>
                 </div>
 
                 <div class="wrap-input100 validate-input" data-validate = "O E-mail deve ser válido: ex@abc.xyz">
                     <span class="label-input100">E-mail</span>
                     <input class="input100" type="text" name="email" placeholder="Ex: maria@gmail.com"
-                           value="<?php printVar('email'); ?>" readonly>
+                           value="<?php printSessionFieldIfExists('email'); ?>" readonly>
                     <span class="focus-input100" data-symbol="&#xf15a;"></span>
                 </div>
 
@@ -250,6 +244,8 @@
                     <input class="input100" type="tel" name="telephone" placeholder="Ex: (11)97777-7777">
                     <span class="focus-input100" data-symbol="&#xf405;"></span>
                 </div>
+
+                <input type="hidden" name="cadastroForm" value="1">
 
                 <div class="flex-m w-full p-b-33">
                 </div>

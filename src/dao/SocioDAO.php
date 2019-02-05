@@ -3,7 +3,7 @@
 require_once('DBConncetion.php');
 require_once(__DIR__.'/../model/Socio.php');
 require_once(__DIR__.'/../model/ModelUtils.php');
-require_once(__DIR__.'/../response/Response.php');
+require_once(__DIR__.'/../utils/Response.php');
 
 class SocioDAO {
 

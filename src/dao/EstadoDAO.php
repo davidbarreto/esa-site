@@ -47,6 +47,20 @@ SQL;
         }
 
         return $estados;
+    }
 
+    public function existsStateId($id) {
+        $sql =
+<<<SQL
+        SELECT 1 FROM esa.estado WHERE id = ?
+SQL;
+        $rs = $this->conn->prepare($sql);
+        $rs->bindParam(1, $id);
+
+        $rs->execute();
+
+        $row = $rs->fetch(PDO::FETCH_OBJ);
+
+        return !empty($row);
     }
 }

@@ -49,7 +49,7 @@
 
     //TODO Let the Admin filter the users as he want
     $filter = new Usuario();
-    $result = UsuarioDAO::getInstance()->getUsuario($filter);
+    $result = UsuarioDAO::getInstance()->getUser($filter);
 
     $total = count($result);
 
