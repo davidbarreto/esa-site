@@ -10,7 +10,6 @@
     if (isLoggedIn()) {
         $result = getAlreadyLoggedErrorResponse();
     } else if (isset($_POST['signupForm'])) {
-        echo "call";
         $result = signup();
     }
 ?>

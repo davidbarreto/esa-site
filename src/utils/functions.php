@@ -62,7 +62,7 @@ function redirectToUserHomePage() {
         case Perfil::UNLOGGED:
         default:
 
-            header("Location: ../static/signin.html");
+            header("Location: ../pages/signin.php");
             exit();
 
             break;
@@ -78,7 +78,7 @@ function checkUserAuthorization($pageProfile) {
     $profile = getProfileLogged();
 
     if ($profile == Perfil::UNLOGGED) {
-        header("Location: ../static/signin.html");
+        header("Location: ../pages/signin.php");
         exit();
     }
 
@@ -388,6 +388,21 @@ function signin() {
     else {
         return getIncorrectUsernameOrPasswordErrorResponse();
     }
+}
+
+
+/**
+ * Calculates the current Age from Birthdate informed
+ * @param $birthDate The Birthdate
+ * @return int The Age relative to the Birthdate
+ */
+function getAge($birthDate) {
+
+    $date = new DateTime($birthDate);
+    $now = new DateTime();
+    $interval = $now->diff($date);
+
+    return $interval->y;
 }
 
 /**

@@ -8,74 +8,68 @@
 
     header("Content-Type: text/html; charset=ISO-8859-1");
 
-    require_once(__DIR__.'/../dao/UsuarioDAO.php');
-    require_once(__DIR__.'/../model/Usuario.php');
-    require_once(__DIR__.'/../model/Perfil.php');
+    require_once(__DIR__ . '/../dao/UsuarioDAO.php');
+    require_once(__DIR__ . '/../model/Usuario.php');
+    require_once(__DIR__ . '/../model/Perfil.php');
 
     define('MAX', '14');
 
-    //TODO Let the Admin filter the users as he want
-    $filter = new Usuario();
-    $perfil = new Perfil();
-    $perfil->setId(2);
-    $filter->setPerfil($perfil);
+    function generateLetterLabelsPDF($usuarios) {
 
-    $result = UsuarioDAO::getInstance()->getUser($filter);
-    $total = count($result);
+        $total = count($usuarios);
 
-    echo "Processing $total records...\n";
+        $pageId = 1;
+        $val = 0;
 
-    $pageId = 1;
-    $val = 0;
+        $curl_connection = setupConnection();
+        $params = setupParams();
 
-    $curl_connection = setupConnection();
-    $params = setupParams();
+        //Fill the 'Correios Endereçador' form
+        for ($i = 0; $i < $total; ++$i) {
 
-    //Fill the 'Correios Endereçador' form
-    for ($i=0; $i < $total; ++$i) {
+            $usuario = $usuarios[$i];
+            $val = $val + 1;
 
-        $usuario = $result[$i];
-        $val = $val+1;
+            $params["tipo_cep_" . $val] = "2";
+            $params["tipo_" . $val] = "des";
+            $params["cep_" . $val] = $usuario->getSocio()->getCep();
+            $params["tratamento_" . $val] = "";
+            $params["nome_" . $val] = utf8_decode($usuario->getNome() . ' ' . $usuario->getSobrenome());
+            $params["empresa_" . $val] = "";
+            $params["endereco_" . $val] = utf8_decode($usuario->getSocio()->getLogradouro());
+            $params["numero_" . $val] = $usuario->getSocio()->getNumResidencia();
+            $params["complemento_" . $val] = utf8_decode($usuario->getSocio()->getComplementoEndereco());
+            $params["bairro_" . $val] = utf8_decode($usuario->getSocio()->getBairro());
+            $params["cidade_" . $val] = utf8_decode($usuario->getSocio()->getCidade()->getNome());
+            $params["uf_" . $val] = $usuario->getSocio()->getCidade()->getEstado()->getUf();
+            $params["selUf_" . $val] = $usuario->getSocio()->getCidade()->getEstado()->getUf();
+            $params["telefone_" . $val] = "";
 
-        $params["tipo_cep_".$val] = "2";
-        $params["tipo_".$val] = "des";
-        $params["cep_".$val] = $usuario->getSocio()->getCep();
-        $params["tratamento_".$val] = "";
-        $params["nome_".$val] = utf8_decode($usuario->getNome() . ' ' .$usuario->getSobrenome());
-        $params["empresa_".$val] = "";
-        $params["endereco_".$val] = utf8_decode($usuario->getSocio()->getLogradouro());
-        $params["numero_".$val] = $usuario->getSocio()->getNumResidencia();
-        $params["complemento_".$val] = utf8_decode($usuario->getSocio()->getComplementoEndereco());
-        $params["bairro_".$val] = utf8_decode($usuario->getSocio()->getBairro());
-        $params["cidade_".$val] = utf8_decode($usuario->getSocio()->getCidade()->getNome());
-        $params["uf_".$val] = $usuario->getSocio()->getCidade()->getEstado()->getUf();
-        $params["selUf_".$val] = $usuario->getSocio()->getCidade()->getEstado()->getUf();
-        $params["telefone_".$val] = "";
+            if (($i + 1) % MAX == 0) {
+                createPdfPage($curl_connection, $params, $pageId);
+                $curl_connection = setupConnection();
+                $params = setupParams();
 
-        if (($i+1) % MAX == 0) {
+                $pageId++;
+                $val = 0;
+            }
+        }
+
+        //Fill the last page with empty records if the last page contains
+        //less than MAX records
+        $mod = $total % MAX;
+
+        if ($mod > 0) {
+
+            for ($i = $mod + 1; $i <= MAX; $i++) {
+                insertEmptyRecord($params, $i);
+            }
+
             createPdfPage($curl_connection, $params, $pageId);
-            $curl_connection = setupConnection();
-            $params = setupParams();
-
-            $pageId++;
-            $val = 0;
-        }
-    }
-
-    //Fill the last page with empty records if the last page contains
-    //less than MAX records
-    $mod = $total % MAX;
-
-    if ($mod > 0) {
-
-        for ($i=$mod+1; $i <= MAX; $i++) {
-            insertEmptyRecord($params, $i);
         }
 
-        createPdfPage($curl_connection, $params, $pageId);
+        echo "Generated $pageId pages...\n";
     }
-
-    echo "Generated $pageId pages...\n";
 
     function insertEmptyRecord(& $params, $val) {
 

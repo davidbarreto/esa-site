@@ -41,27 +41,7 @@ class UsuarioDAO
         return (null !== $resp and !empty($resp)) ? $resp[0] : null;
     }
 
-    public function getUser(Usuario $usuario, $limit = 0) {
-
-        $query = <<<SQL
-          SELECT u.id as id_usuario, u.login, u.senha, u.nome, u.sobrenome, u.email,
-            u.data_inclusao, u.data_alteracao, u.data_exclusao,
-            p.id as id_perfil, p.nome as nome_perfil, p.codigo as codigo_perfil,
-            s.id as id_socio, s.logradouro, s.numero_residencia, s.telefone, 
-            s.bairro, s.cep, s.data_nascimento, s.complemento, s.genero_id,
-            s.complemento, s.data_inclusao, s.data_alteracao, s.data_exclusao, 
-            c.id as id_cidade, c.nome as nome_cidade,
-            e.id as id_estado, e.nome as nome_estado, e.uf,
-            pa.id as id_pais, pa.nome as nome_pais, pa.sigla as sigla_pais
-          FROM esa.usuario u
-          JOIN esa.perfil p ON u.perfil_id = p.id
-          LEFT JOIN esa.socio s ON u.socio_id = s.id
-          LEFT JOIN esa.cidade c ON s.cidade_id = c.id
-          LEFT JOIN esa.estado e ON c.estado = e.id
-          LEFT JOIN esa.pais pa ON e.pais = p.id
-          WHERE 1=1 
-SQL;
-
+    private function generateParams(Usuario $usuario, & $query) {
         $params = array();
 
         //Parameters from Usuario
@@ -193,9 +173,47 @@ SQL;
             }
         }
 
+        return $params;
+    }
 
+    public function getUser(Usuario $usuario, $start = 0, $limit = 0, $order = null, $direction = null) {
+
+        $query = <<<SQL
+          SELECT u.id as id_usuario, u.login, u.senha, u.nome, u.sobrenome, u.email,
+            u.data_inclusao, u.data_alteracao, u.data_exclusao,
+            p.id as id_perfil, p.nome as nome_perfil, p.codigo as codigo_perfil,
+            s.id as id_socio, s.logradouro, s.numero_residencia, s.telefone, 
+            s.bairro, s.cep, s.data_nascimento, s.genero_id,
+            s.complemento, s.data_inclusao, s.data_alteracao, s.data_exclusao, 
+            c.id as id_cidade, c.nome as nome_cidade,
+            e.id as id_estado, e.nome as nome_estado, e.uf,
+            pa.id as id_pais, pa.nome as nome_pais, pa.sigla as sigla_pais
+          FROM esa.usuario u
+          JOIN esa.perfil p ON u.perfil_id = p.id
+          LEFT JOIN esa.socio s ON u.socio_id = s.id
+          LEFT JOIN esa.cidade c ON s.cidade_id = c.id
+          LEFT JOIN esa.estado e ON c.estado = e.id
+          LEFT JOIN esa.pais pa ON e.pais = p.id
+          WHERE 1=1 
+SQL;
+
+        $params = $this->generateParams($usuario, $query);
+
+        //Insert ORDER BY clause if needed
+        if (null !== $order) {
+            $query .= " ORDER BY ".$order;
+            if (null!== $direction ) {
+                $query .= " ".$direction;
+            }
+        }
+
+        //Insert LIMIT clause if needed
         if ($limit > 0) {
-            $query .= " LIMIT " . $limit;
+            $query .= " LIMIT ";
+            if ($start > 0) {
+                $query .= $start.", ";
+            }
+            $query .= $limit;
         }
 
         $rs = $this->conn->prepare($query);
@@ -296,5 +314,19 @@ SQL;
         $row = $rs->fetch(PDO::FETCH_OBJ);
 
         return !empty($row);
+    }
+
+    public function countUsers(Usuario $usuario) {
+        $sql = <<<SQL
+          SELECT count(*)
+          FROM esa.usuario u
+          WHERE 1=1
+SQL;
+        $params = $this->generateParams($usuario, $query);
+
+        $result = $this->conn->prepare($sql);
+        $result->execute();
+
+        return $result->fetchColumn();
     }
 }
